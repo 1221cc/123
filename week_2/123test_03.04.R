@@ -24,11 +24,30 @@ docs <- tm_map(docs, toSpace, "作者")
 docs <- tm_map(docs, toSpace, "發信站")
 docs <- tm_map(docs, toSpace, "批踢踢實業坊")
 docs <- tm_map(docs, toSpace, "[a-zA-Z]")
-docs <- tm_map(docs, toSpace,""
-
+docs <- tm_map(docs, toSpace,"湖人")
+docs <- tm_map(docs, toSpace,"紫杉軍")
+               
 #移除標點符號 (punctuation)
 #移除數字 (digits)、空白 (white space)
 docs <- tm_map(docs, removePunctuation)
 docs <- tm_map(docs, removeNumbers)
 docs <- tm_map(docs, stripWhitespace)
 docs
+
+mixseg = worker()
+jieba_tokenizer=function(d){
+  unlist(segment(d[[1]],mixseg))
+}
+seg = lapply(docs, jieba_tokenizer)
+freqFrame = as.data.frame(table(unlist(seg)))
+freqFrame = freqFrame[order(freqFrame$Freq,decreasing=TRUE), ]
+library(knitr)
+kable(head(freqFrame), format = "markdown")
+
+wordcloud(freqFrame$Var1,freqFrame$Freq,
+          scale=c(5,0.1),min.freq=50,max.words=150,
+          random.order=TRUE, random.color=FALSE, 
+          rot.per=.1, colors=brewer.pal(8, "Dark2"),
+          ordered.colors=FALSE,use.r.layout=FALSE,
+          fixed.asp=TRUE)
+
